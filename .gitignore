@@ -1,39 +1,53 @@
-# History files
-.Rhistory
-.Rapp.history
+library(rvest)
+library(dplyr)
+library(xml2)
 
-# Session Data files
-.RData
 
-# User-specific files
-.Ruserdata
+gasprice<-"https://gasprices.aaa.com/state-gas-price-averages/"
+GPpage<-read_html(gasprice)
+GPpage
 
-# Example code in package build process
-*-Ex.R
+body_nodes<-html_children(html_node(GPpage,"body"))
+body_nodes<-GPpage %>%
+  html_node("body")%>%
+  html_children()
+body_nodes
 
-# Output files from R CMD build
-/*.tar.gz
+#title of a story
+document.querySelector("#title-of-a-story")
 
-# Output files from R CMD check
-/*.Rcheck/
+#sortable > tbody > tr:nth-child(1) > td.regular
+#sortable > tbody > tr:nth-child(1) > td.mid_grade
+#sortable > tbody > tr:nth-child(1) > td.premium
+#sortable > tbody > tr:nth-child(1) > td.diesel
 
-# RStudio files
-.Rproj.user/
+df1 <- GPpage %>% 
+  rvest::html_nodes('body') %>% 
+  xml2::xml_find_all('//*[@id="sortable"]/tbody/tr[*]/td[1]/a') %>% 
+  rvest::html_text()
+df2 <- GPpage %>% 
+  rvest::html_nodes('body') %>% 
+  xml2::xml_find_all('//*[@id="sortable"]/tbody/tr[*]/td[2]') %>% 
+  rvest::html_text()
+df3 <- GPpage %>% 
+  rvest::html_nodes('body') %>% 
+  xml2::xml_find_all('//*[@id="sortable"]/tbody/tr[*]/td[3]') %>% 
+  rvest::html_text()
+df4 <- GPpage %>% 
+  rvest::html_nodes('body') %>% 
+  xml2::xml_find_all('//*[@id="sortable"]/tbody/tr[*]/td[4]') %>% 
+  rvest::html_text()
+df5 <- GPpage %>% 
+  rvest::html_nodes('body') %>% 
+  xml2::xml_find_all('//*[@id="sortable"]/tbody/tr[*]/td[5]') %>% 
+  rvest::html_text()
+df<-data.frame(df1,df2,df3,df4,df5)
 
-# produced vignettes
-vignettes/*.html
-vignettes/*.pdf
+names(df)[1]<-"State"
+names(df){2}<-"Regular"
+names(df)[3]<-"MidGrade"
+names(df)[4]<-"Preminum"
+names(df)[5]<-"Disel"
+knitr::kable(df)
 
-# OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
-.httr-oauth
 
-# knitr and R markdown default cache directories
-*_cache/
-/cache/
-
-# Temporary files created by R markdown
-*.utf8.md
-*.knit.md
-
-# R Environment Variables
-.Renviron
